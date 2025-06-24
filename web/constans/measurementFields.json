@@ -1,0 +1,7 @@
+[
+  { "key": "name", "label": "Name", "type": "text", "errorMessage": "Name should not be empty" },
+  { "key": "armLength", "label": "Arm Length", "type": "number", "errorMessage": "Arm Length should not be empty" },
+  { "key": "chest", "label": "Chest", "type": "number", "errorMessage": "Chest should not be empty" },
+  { "key": "shoulderWidth", "label": "Shoulder Width", "type": "number", "errorMessage": "Shoulder Width should not be empty" },
+  { "key": "waist", "label": "Waist", "type": "number", "errorMessage": "Waist should not be empty" }
+] 
