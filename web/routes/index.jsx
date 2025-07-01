@@ -19,65 +19,40 @@ import { EditIcon, DeleteIcon } from "@shopify/polaris-icons";
 import { useFindMany } from "@gadgetinc/react";
 import { api } from "../api";
 
-function IndexPage() {
-  const [afterCursor, setAfterCursor] = useState(null);
-  const [beforeCursor, setBeforeCursor] = useState(null);
-  const [reviews, setReviews] = useState([]);
-  const [pageInfoData, setPageInfoData] = useState(null);
-  const pageSize = 20;
+function CustomerDetailsPage() {
+  const [afterCustomerCursor, setAfterCustomerCursor] = useState(null);
+  const [beforeCustomerCursor, setBeforeCustomerCursor] = useState(null);
+  const customerPageSize = 20;
   const [sortSelected, setSortSelected] = useState(["customerName asc"]);
-  const [fieldDB, sortOrder] = sortSelected[0].split(" ");
-  const [searchTableData, setSearchTableData] = useState("");
-  const [tableSpinnerToDataLoad, setTableSpinnerToDataLoad] = useState(false);
-  const [tableSpinnerOnDataLoadFromDB, settableSpinnerOnDataLoadFromDB] = useState(true);
-  const [hasReviews, setHasReviews] = useState(false);
-  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const [customerSortField, customerSortOrder] = sortSelected[0].split(" ");
+  const [customerSearchValue, setCustomerSearchValue] = useState("");
+  const [customerTableLoading, setCustomerTableLoading] = useState(false);
+  const [customerInitialLoading, setCustomerInitialLoading] = useState(true);
+  const [hasCustomerDetails, setHasCustomerDetails] = useState(false);
+  const [customerInitialLoadComplete, setCustomerInitialLoadComplete] = useState(false);
 
   const navigate = useNavigate();
-  // const [
-  //   {
-  //     data: reviewListData,
-  //     fetching: findFetching,
-  //     error: findError,
-  //     pageInfo,
-  //   },
-  //   _refetch,
-  // ] = useFindMany(api.reviewList, {
-  //   live: true,
-  //   ...(searchTableData ? { search: searchTableData } : {}),
-  //   first: pageSize,
-  //   ...(afterCursor ? { after: afterCursor } : {}),
-  //   ...(beforeCursor ? { before: beforeCursor, last: pageSize } : {}),
-  //   sort: { [fieldDB]: sortOrder === "asc" ? "Ascending" : "Descending" },
-  //   select: {
-  //     id: true,
-  //     reviewTitle: true,
-  //     customerName: true,
-  //     publishStatus: true,
-  //     createdAt: true,
-  //     updatedAt: true,
-  //     customerEmail: true,
-  //     product: {
-  //       title: true,
-  //       id: true,
-  //     }
-  //   }
-  // });
 
   const [
     {
-      data: reviewListData,
-      fetching: findFetching,
-      error: findError,
+      data: customerDetailsData,
+      fetching: customerDetailsFetching,
+      error: customerDetailsError,
     },
-    _refetch,
+    refetchCustomerDetails,
   ] = useFindMany(api.shopifyCustomer, {
+    first: customerPageSize,
+    after: afterCustomerCursor,
+    before: beforeCustomerCursor,
+    search: customerSearchValue || undefined,
+    sort: customerSortField === 'customerName' ?
+      { displayName: customerSortOrder === 'asc' ? 'Ascending' : 'Descending' } :
+      { createdAt: customerSortOrder === 'asc' ? 'Ascending' : 'Descending' },
     select: {
       displayName: true,
       id: true,
       email: true,
       numberOfOrders: true,
-      // Add orders related to customer
       orders: {
         edges: {
           node: {
@@ -91,78 +66,30 @@ function IndexPage() {
     }
   });
 
-  console.log('Data.', reviewListData, findFetching, findError)
-
-  const updateReviewStatus = async (ids, value) => {
-    try {
-      setTableSpinnerToDataLoad(true);
-      for (const id of ids) {
-        await api.reviewList.update(id, { publishStatus: value });
-      }
-      _refetch();
-      handleSelectionChange("all", false);
-    } catch (error) {
-    }
-    finally {
-      setTableSpinnerToDataLoad(false);
-    }
-  };
-
-  const { selectedResources, allResourcesSelected, handleSelectionChange } = useIndexResourceState(reviews);
-
-  const deleteReviews = async (idsToDelete) => {
-    try {
-      setTableSpinnerToDataLoad(true);
-      for (const id of idsToDelete) {
-        await api.reviewList.delete(id);
-      }
-      _refetch();
-      handleSelectionChange("all", false);
-    } catch (error) {
-    } finally {
-      setTableSpinnerToDataLoad(false);
-    }
-  };
-  console.log("reviewListing,", reviewListData, findError)
   useEffect(() => {
-    if (reviewListData) {
-      setReviews(reviewListData);
-      settableSpinnerOnDataLoadFromDB(false)
-      setHasReviews(reviewListData.length > 0);
-      setInitialLoadComplete(true);
+    if (customerDetailsData) {
+      setCustomerInitialLoading(false);
+      setHasCustomerDetails(customerDetailsData.length > 0);
+      setCustomerInitialLoadComplete(true);
     }
-  }, [reviewListData, afterCursor, beforeCursor]);
+  }, [customerDetailsData]);
 
-  useEffect(() => {
-    if (reviewListData?.pagination) {
-      const newReviews = reviewListData.pagination.edges.map(
-        (edge) => edge.node
-      );
-      settableSpinnerOnDataLoadFromDB(false)
-      setReviews(newReviews);
-      setPageInfoData(reviewListData.pagination.pageInfo);
-    }
-  }, [reviewListData]);
-
-  const handleNextPage = () => {
-    if (pageInfoData?.hasNextPage) {
-      setAfterCursor(pageInfoData.endCursor);
-      setBeforeCursor(null);
-      // setCurrentPage((prev) => prev + 1);
+  const handleNextCustomerPage = () => {
+    if (customerDetailsData?.hasNextPage) {
+      setAfterCustomerCursor(customerDetailsData.endCursor);
+      setBeforeCustomerCursor(null);
     }
   };
 
-  const handlePreviousPage = () => {
-    if (pageInfoData?.hasPreviousPage) {
-      setBeforeCursor(pageInfoData.startCursor);
-      setAfterCursor(null);
-      // setCurrentPage((prev) => Math.max(prev - 1, 1));
+  const handlePreviousCustomerPage = () => {
+    if (customerDetailsData?.hasPreviousPage) {
+      setBeforeCustomerCursor(customerDetailsData.startCursor);
+      setAfterCustomerCursor(null);
     }
   };
 
-  const [active, setActive] = useState(false);
-
-  const toggleModal = useCallback(() => setActive((active) => !active), []);
+  const [deleteModalActive, setDeleteModalActive] = useState(false);
+  const toggleDeleteModal = useCallback(() => setDeleteModalActive((active) => !active), []);
 
   const sortOptions = [
     {
@@ -182,49 +109,75 @@ function IndexPage() {
 
   const [queryValue, setQueryValue] = useState(undefined);
 
-  const handleQueryValueChange = useCallback((value) => {
+  const handleCustomerQueryValueChange = useCallback((value) => {
     setQueryValue(value);
-    setSearchTableData(value);
-    setAfterCursor(null);
-    setBeforeCursor(null);
-    setCurrentPage(1);
+    setCustomerSearchValue(value);
+    setAfterCustomerCursor(null);
+    setBeforeCustomerCursor(null);
   }, []);
 
-  const handleQueryValueRemove = useCallback(() => {
+  const handleCustomerQueryValueRemove = useCallback(() => {
     setQueryValue("");
-    setSearchTableData("");
-    setAfterCursor(null);
-    setBeforeCursor(null);
-    setCurrentPage(1);
+    setCustomerSearchValue("");
+    setAfterCustomerCursor(null);
+    setBeforeCustomerCursor(null);
   }, []);
 
-  const handleFiltersClearAll = useCallback(() => {
-    handleQueryValueRemove();
-  }, [handleQueryValueRemove]);
+  const handleCustomerFiltersClearAll = useCallback(() => {
+    handleCustomerQueryValueRemove();
+  }, [handleCustomerQueryValueRemove]);
 
-  const resourceName = {
-    singular: "review",
-    plural: "reviews",
+  const customerResourceName = {
+    singular: "customer detail",
+    plural: "customer details",
   };
 
-  const rowMarkup = reviews?.map(
-    (
-      {
-        id,
-        displayName,
-        email,
-        numberOfOrders
-      },
-      index
-    ) => (
+  const { selectedResources: selectedCustomerDetails, allResourcesSelected: allCustomerDetailsSelected, handleSelectionChange: handleCustomerSelectionChange } =
+    useIndexResourceState(customerDetailsData || []);
+
+  const updateCustomerStatus = async (ids, value) => {
+    try {
+      setCustomerTableLoading(true);
+      for (const id of ids) {
+        await api.reviewList.update(id, { publishStatus: value });
+      }
+      refetchCustomerDetails();
+      handleCustomerSelectionChange("all", false);
+    } catch (error) {
+    }
+    finally {
+      setCustomerTableLoading(false);
+    }
+  };
+
+  const deleteCustomerDetails = async (idsToDelete) => {
+    try {
+      setCustomerTableLoading(true);
+      for (const id of idsToDelete) {
+        await api.reviewList.delete(id);
+      }
+      refetchCustomerDetails();
+      handleCustomerSelectionChange("all", false);
+    } catch (error) {
+    } finally {
+      setCustomerTableLoading(false);
+    }
+  };
+
+  const customerRowMarkup = customerDetailsData?.map(
+    ({
+      id,
+      displayName,
+      email,
+      numberOfOrders
+    }, index) => (
       <IndexTable.Row
         id={id}
         key={id}
-        selected={selectedResources.includes(id)}
+        selected={selectedCustomerDetails.includes(id)}
         position={index}
         onClick={(event) => {
           navigate(`/orderLineItems/${id}`);
-          // navigate(`/review/${id}`, { replace: true });
           if (event) {
             event.stopPropagation();
             event.preventDefault();
@@ -234,49 +187,22 @@ function IndexPage() {
         <IndexTable.Cell>{displayName}</IndexTable.Cell>
         <IndexTable.Cell>{email}</IndexTable.Cell>
         <IndexTable.Cell>{numberOfOrders}</IndexTable.Cell>
-
-        {/* <IndexTable.Cell>
-          {new Date(createdAt).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
-        </IndexTable.Cell> */}
-
-        {/* <IndexTable.Cell>
-          {publishStatus ? (
-            <Badge progress="complete">Publish</Badge>
-          ) : (
-            <Badge progress="incomplete">Unpublish</Badge>
-          )}
-        </IndexTable.Cell> */}
-        {/* <IndexTable.Cell>
-          <InlineStack gap="200" align="center">
-            <Button tone="success">
-              <Icon source={EditIcon} />
-            </Button>
-            <Button tone="critical">
-              <Icon source={DeleteIcon} />
-            </Button>
-          </InlineStack>
-        </IndexTable.Cell> */}
       </IndexTable.Row>
     )
   );
 
   return (
     <Page
-      backAction={{ content: "Reviews", url: "/" }}
-      title="Customer details"
+      title="Customer Details"
       compactTitle
       primaryAction={{
-        content: "Create",
+        content: "Create Customer Detail",
         disabled: false,
         variant: "primary",
-        onAction: () => { navigate("/review/create") },
+        onAction: () => { navigate("") },
       }}
-    > 
-      {tableSpinnerToDataLoad && (
+    >
+      {customerTableLoading && (
         <div>
           <div
             style={{
@@ -294,14 +220,14 @@ function IndexPage() {
         </div>
       )}
       <Card>
-        {initialLoadComplete && (hasReviews || queryValue) ? (
+        {customerInitialLoadComplete && (hasCustomerDetails || queryValue) ? (
           <IndexFilters
-            loading={findFetching}
+            loading={customerDetailsFetching}
             sortOptions={sortOptions}
             sortSelected={sortSelected}
             queryValue={queryValue}
-            queryPlaceholder="Searching in all"
-            onQueryChange={handleQueryValueChange}
+            queryPlaceholder="Search all customer details"
+            onQueryChange={handleCustomerQueryValueChange}
             onQueryClear={() => setQueryValue("")}
             onSort={setSortSelected}
             tabs={[]}
@@ -312,82 +238,74 @@ function IndexPage() {
             filters={[]}
             primaryActionButton={<Badge progress="complete">Publish</Badge>}
             appliedFilters={[]}
-            onClearAll={handleFiltersClearAll}
+            onClearAll={handleCustomerFiltersClearAll}
             mode={mode}
             setMode={setMode}
           />
         ) : null}
         <IndexTable
-
-          emptyState={tableSpinnerOnDataLoadFromDB ? (
+          emptyState={customerInitialLoading ? (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
               <Spinner accessibilityLabel="Spinner example" size="large" />
             </div>
           ) : ''}
           condensed={useBreakpoints().smDown}
-          resourceName={resourceName}
-          itemCount={reviews ? reviews.length : 0}
+          resourceName={customerResourceName}
+          itemCount={customerDetailsData ? customerDetailsData.length : 0}
           selectedItemsCount={
-            allResourcesSelected ? "All" : selectedResources.length
+            allCustomerDetailsSelected ? "All" : selectedCustomerDetails.length
           }
-          onSelectionChange={handleSelectionChange}
+          onSelectionChange={handleCustomerSelectionChange}
           promotedBulkActions={[
             {
-              content: 'Delete selected reviews',
-              onAction: () => toggleModal(),
+              content: 'Delete selected customer details',
+              onAction: () => toggleDeleteModal(),
             },
             {
               title: 'Publish Status',
               actions: [
                 {
                   content: 'Publish',
-                  onAction: () => updateReviewStatus(selectedResources, true),
+                  onAction: () => updateCustomerStatus(selectedCustomerDetails, true),
                 },
                 {
                   content: 'Unpublish',
-                  onAction: () => updateReviewStatus(selectedResources, false),
+                  onAction: () => updateCustomerStatus(selectedCustomerDetails, false),
                 },
               ],
             },
           ]}
           headings={[
-            // { title: "Review Id" },
             { title: "Customer Name" },
             { title: "Email" },
-            { title: "Total Order" },
-            // { title: "CreatedAt" },
-            // { title: "Product" },
-            // { title: "Status" },
-            // { title: "Action", alignment: "center" },
+            { title: "Total Orders" },
           ]}
           pagination={{
-            hasNext: pageInfoData?.hasNextPage,
-            hasPrevious: pageInfoData?.hasPreviousPage,
-            onNext: handleNextPage,
-            onPrevious: handlePreviousPage,
+            hasNext: customerDetailsData?.hasNextPage,
+            hasPrevious: customerDetailsData?.hasPreviousPage,
+            onNext: handleNextCustomerPage,
+            onPrevious: handlePreviousCustomerPage,
           }}
         >
-          {rowMarkup}
+          {customerRowMarkup}
         </IndexTable>
       </Card>
-
-
       <Modal
-        open={active}
-        onClose={toggleModal}
-        title="Delete customization"
+        open={deleteModalActive}
+        onClose={toggleDeleteModal}
+        title="Delete Customer Detail"
         primaryAction={{
           destructive: true,
           content: "Delete",
           onAction: () => {
-            deleteReviews(selectedResources);
-            toggleModal();
+            deleteCustomerDetails(selectedCustomerDetails);
+            toggleDeleteModal();
           },
         }}
         secondaryActions={[
           {
             content: "Cancel",
-            onAction: toggleModal,
+            onAction: toggleDeleteModal,
           },
         ]}
       >
@@ -402,15 +320,13 @@ function IndexPage() {
             }}
           >
             <Text variant="headingSm" as="h6">
-              Are you sure you want to delete this Customization <br />
-              "Measurement List Module"
+              Are you sure you want to delete this customer detail?
             </Text>
           </div>
         </Modal.Section>
       </Modal>
-
     </Page>
   );
 }
 
-export default IndexPage;
+export default CustomerDetailsPage;

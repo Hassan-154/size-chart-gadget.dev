@@ -15,6 +15,14 @@ export const schema: GadgetModel = {
       },
       storageKey: "Xle80Q5aONCP",
     },
+    sizeMeasurement: {
+      type: "hasOne",
+      child: {
+        model: "sizeMeasurement",
+        belongsToField: "orderSelectedMeasurement",
+      },
+      storageKey: "0objKRjMi1Zx",
+    },
   },
   shopify: {
     fields: [

@@ -82,6 +82,14 @@ export const permissions: GadgetPermissions = {
             run: true,
           },
         },
+        sizeMeasurement: {
+          read: true,
+          actions: {
+            create: true,
+            delete: true,
+            update: true,
+          },
+        },
       },
     },
     unauthenticated: {

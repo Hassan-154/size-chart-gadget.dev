@@ -1,0 +1,77 @@
+[
+  {
+    "label": "FitSure (answer 7 simple questions regarding your size/fit preference and we’ll create a custom size for you.)",
+    "value": "fitSure",
+    "subOptions": 
+      {
+        "height": [
+          "Not Sure",
+          "5", "5'1''", "5'2''", "5'3''", "5'4''", "5'5''", "5'6''", "5'7''", "5'8''", "5'9''", "5'10''", "5'11''",
+          "6", "6'1''", "6'2''", "6'3''", "6'4''", "6'5''", "6'6''", "6'7''", "6'8''", "6'9''", "6'10''", "6'11''",
+          "7", "7'1''", "7'2''", "7'3''", "7'4''", "7'5''"
+        ],
+        "tShirtSize": [ "XS", "S", "M", "L", "XL", "XXL", "XXXL" ],
+        "pantsWaist": "",
+        "collarSize": "",
+        "sleeveLength": [
+          "not Sure",
+          "30", "30.5", "31", "31.5", "32", "32.5", "33", "33.5", "34", "34.5", "35", "35.5", "36", "36.5", "37", "37.5", "38"
+        ],
+        "belly": [
+          { "label": "Flat-Slight Belly", "value": "flatSlight" },
+          { "label": "Medium Belly", "value": "medium" },
+          { "label": "Significant Belly", "value": "significant" }
+        ],
+        "preferredFit": [
+          { "label": "Classic/Regular Fit", "value": "classicRegular" },
+          { "label": "Modern Fit", "value": "modern" },
+          { "label": "Slim Fit", "value": "slim" }
+        ],
+        "personalPrefer": [
+          { "label": "Tucked", "value": "tucked" },
+          { "label": "Untucked", "value": "untucked" },
+          { "label": "Both", "value": "both" }
+        ]
+      }
+  },
+  {
+    "label": "Pick a standard size",
+    "value": "standardSize",
+    "subOptions": {
+        "collarSize": [
+          "14", "14.5", "15", "15.5", "16", "16.5", "17", "17.5", "18", "18.5", "19", "19.5", "20"
+        ],
+        "sleeveLength": [
+          "Not Sure",
+          "29", "29.5", "30", "30.5", "31", "31.5", "32", "32.5", "33", "33.5", "34", "34.5", "35", "35.5", "36", "36.5", "37", "37.5", "38", "38.5", "39", "39.5", "40", "40.5", "41", "41.5", "42", "42.5", "43"
+        ],
+        "shirtLength": [
+          "Not Sure",
+          "25", "26", "27", "28", "29", "30", "31", "32", "33", "34",
+          "25-5", "26-5", "27-5", "28-5", "29-5", "30-5", "31-5", "32-5", "33-5"
+        ]
+    }
+  },
+  {
+    "label": "Specify custom measurements",
+    "value": "specifyCustom",
+    "subOptions": {
+        "measurementType": [
+          { "label": "Shirt Measurement", "value": "shirtMeasurement" },
+          { "label": "Body Measurement", "value": "bodyMeasurement" }
+        ],
+        "measurementsInches": [
+          { "label": "Chest", "value": "chest" },
+          { "label": "Waist", "value": "waist" },
+          { "label": "Hips", "value": "hips" },
+          { "label": "Neck", "value": "neck" },
+          { "label": "Shoulder", "value": "shoulder" },
+          { "label": "Armhole", "value": "armhole" },
+          { "label": "Bicep", "value": "bicep" },
+          { "label": "Wrist", "value": "wrist" },
+          { "label": "Sleeve Length", "value": "sleeveLength" },
+          { "label": "Shirt Length", "value": "shirtLength" }
+        ]
+    }
+  }
+] 

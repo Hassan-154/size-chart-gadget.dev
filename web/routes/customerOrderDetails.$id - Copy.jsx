@@ -14,8 +14,7 @@ import {
   Spinner,
   Layout,
   InlineStack,
-  Box,
-  Button,
+  Button
 } from "@shopify/polaris";
 import { useParams, useNavigate } from "react-router"
 import { useState, useCallback, useEffect } from "react";
@@ -208,13 +207,77 @@ function CustomerOrderDetailsPage() {
           lineItem={selectedLineItem}
           onUpdate={handleMeasurementSave}
         />
-
+        <Layout>
+        </Layout>
+        {isTableLoading && (
+          <div>
+            <div
+              style={{
+                position: "fixed",
+                inset: "0px",
+                backgroundColor: "rgba(255,255,255,0.7)",
+                zIndex: "999",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Spinner size="large" />
+            </div>
+          </div>
+        )}
         <Card>
-        <Box>
-        <Text>map all the title here one by one</Text>
-        </Box>
+          {hasLoadedOnce ? (
+            <IndexFilters
+              loading={isOrderFetching}
+              sortOptions={tableSortOptions}
+              sortSelected={sortOrder}
+              queryValue={searchValue}
+              queryPlaceholder="Search order line items"
+              onQueryChange={setSearchValue}
+              onQueryClear={() => setSearchValue("")}
+              onSort={setSortOrder}
+              tabs={[]}
+              selected={[]}
+              onSelect={[]}
+              canCreateNewView={false}
+              filters={[]}
+              appliedFilters={[]}
+              onClearAll={() => setSearchValue("")}
+              mode={filterMode}
+              setMode={setFilterMode}
+            />
+          ) : null}
+          <IndexTable
+            emptyState={isInitialDataLoading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
+                <Spinner accessibilityLabel="Loading order line items" size="large" />
+              </div>
+            ) : ''}
+            condensed={useBreakpoints().smDown}
+            resourceName={lineItemResourceName}
+            itemCount={lineItemIds.length}
+            selectedItemsCount={allResourcesSelected ? "All" : selectedResources.length}
+            onSelectionChange={handleSelectionChange}
+            headings={[
+              { title: "Line Item Name" },
+              { title: "Measurement Type" },
+              { title: "Product Title" },
+              { title: "Quantity" },
+              { title: "Unit Price" },
+              { title: "Size Name" },
+              { title: "Edit Measurement" },
+            ]}
+            pagination={{
+              hasNext: paginationInfo?.hasNextPage,
+              hasPrevious: paginationInfo?.hasPreviousPage,
+              onNext: goToNextPage,
+              onPrevious: goToPreviousPage,
+            }}
+          >
+            {lineItemRows}
+          </IndexTable>
         </Card>
-      
       </Page>
     </div>
   );

@@ -21,24 +21,24 @@ import {
   import { api } from "../api";
   
   function OrderLineItemsPage() {
-    const [tableSpinnerToDataLoad, setTableSpinnerToDataLoad] = useState(false);
-    const [tableSpinnerOnDataLoadFromDB, setTableSpinnerOnDataLoadFromDB] = useState(true);
+    const [tableLoading, setTableLoading] = useState(false);
+    const [dbLoading, setDbLoading] = useState(true);
     const [initialLoadComplete, setInitialLoadComplete] = useState(false);
-    const [queryValue, setQueryValue] = useState("");
+    const [searchValue, setSearchValue] = useState("");
     const [sortSelected, setSortSelected] = useState(["createdAt desc"]);
-    const [pageInfoData, setPageInfoData] = useState(null);
+    const [pageInfo, setPageInfo] = useState(null);
   
     const navigate = useNavigate();
-    const { id } = useParams();
+    const { id: customerId } = useParams();
   
     const [
       {
-        data: customerData,
-        fetching: findFetching,
-        error: findError,
+        data: customerOrderData,
+        fetching: orderFetching,
+        error: orderError,
       },
       _refetch,
-    ] = useFindOne(api.shopifyCustomer, id, {
+    ] = useFindOne(api.shopifyCustomer, customerId, {
       select: {
         id: true,
         displayName: true,
@@ -56,20 +56,19 @@ import {
     });
   
     useEffect(() => {
-      if (customerData) {
-        console.log(customerData)
-        setTableSpinnerOnDataLoadFromDB(false);
+      if (customerOrderData) {
+        setDbLoading(false);
         setInitialLoadComplete(true);
       }
-    }, [customerData]);
+    }, [customerOrderData]);
   
     // Pagination handlers (no-op for now)
     const handleNextPage = () => {};
     const handlePreviousPage = () => {};
   
     // Modal state for delete confirmation (not used but kept for future bulk actions)
-    const [active, setActive] = useState(false);
-    const toggleModal = useCallback(() => setActive((active) => !active), []);
+    const [modalActive, setModalActive] = useState(false);
+    const toggleModal = useCallback(() => setModalActive((active) => !active), []);
   
     // Table sort options (if needed in the future)
     const sortOptions = [
@@ -81,11 +80,11 @@ import {
     const { mode, setMode } = useSetIndexFiltersMode(IndexFiltersMode.Filtering);
   
     // Setup selection state for IndexTable
-    const orderResources = customerData?.orders?.edges?.map(({ node }) => node.id) || [];
-    const { selectedResources, allResourcesSelected, handleSelectionChange } = useIndexResourceState(orderResources);
+    const orderIds = customerOrderData?.orders?.edges?.map(({ node }) => node.id) || [];
+    const { selectedResources, allResourcesSelected, handleSelectionChange } = useIndexResourceState(orderIds);
   
-    // Render order line items from customerData.orders.edges
-    const rowMarkup = customerData?.orders?.edges?.map(({ node }, index) => {
+    // Render order line items from customerOrderData.orders.edges
+    const rowMarkup = customerOrderData?.orders?.edges?.map(({ node }, index) => {
       const { id, name, createdAt, totalPrice } = node;
       return (
         <IndexTable.Row
@@ -94,7 +93,7 @@ import {
           selected={selectedResources?.includes?.(id)}
           position={index}
           onClick={(event) => {
-            navigate(`/customerOrderDetails/${name.replace(/^#/, "")}`);
+            navigate(`/MeasurementProducts/${name.replace(/^#/, "")}`);
             if (event) {
               event.stopPropagation();
               event.preventDefault();
@@ -115,19 +114,13 @@ import {
   
     return (
       <Page
-        backAction={{ content: "Customers", url: "/" }}
-        title={`${customerData?.displayName ?? ''} Order`}
+        backAction={{ content: "Orders", url: "/" }}
+        title={`${customerOrderData?.displayName ?? ''} Orders`}
         compactTitle
       >
       <Layout>
-      {/* <Layout.Section>
-        1
-      </Layout.Section>
-      <Layout.Section variant="oneThird">
-        2
-        </Layout.Section> */}
       </Layout>
-        {tableSpinnerToDataLoad && (
+        {tableLoading && (
           <div>
             <div
               style={{
@@ -147,13 +140,13 @@ import {
         <Card>
           {initialLoadComplete ? (
             <IndexFilters
-              loading={findFetching}
+              loading={orderFetching}
               sortOptions={sortOptions}
               sortSelected={sortSelected}
-              queryValue={queryValue}
+              queryValue={searchValue}
               queryPlaceholder="Search orders"
-              onQueryChange={setQueryValue}
-              onQueryClear={() => setQueryValue("")}
+              onQueryChange={setSearchValue}
+              onQueryClear={() => setSearchValue("")}
               onSort={setSortSelected}
               tabs={[]}
               selected={[]}
@@ -161,20 +154,20 @@ import {
               canCreateNewView={false}
               filters={[]}
               appliedFilters={[]}
-              onClearAll={() => setQueryValue("")}
+              onClearAll={() => setSearchValue("")}
               mode={mode}
               setMode={setMode}
             />
           ) : null}
           <IndexTable
-            emptyState={tableSpinnerOnDataLoadFromDB ? (
+            emptyState={dbLoading ? (
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
-                <Spinner accessibilityLabel="Spinner example" size="large" />
+                <Spinner accessibilityLabel="Loading orders" size="large" />
               </div>
             ) : ''}
             condensed={useBreakpoints().smDown}
             resourceName={resourceName}
-            itemCount={orderResources.length}
+            itemCount={orderIds.length}
             selectedItemsCount={allResourcesSelected ? "All" : selectedResources.length}
             onSelectionChange={handleSelectionChange}
             headings={[
@@ -183,8 +176,8 @@ import {
               { title: "Total Price" },
             ]}
             pagination={{
-              hasNext: pageInfoData?.hasNextPage,
-              hasPrevious: pageInfoData?.hasPreviousPage,
+              hasNext: pageInfo?.hasNextPage,
+              hasPrevious: pageInfo?.hasPreviousPage,
               onNext: handleNextPage,
               onPrevious: handlePreviousPage,
             }}

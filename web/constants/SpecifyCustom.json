@@ -1,0 +1,18 @@
+{
+  "value": "",
+  "subOptions": {
+      "measurementType": "",
+      "measurementsInches": {
+        "chest": "",
+        "waist": "",
+        "hips": "",
+        "neck": "",
+        "shoulder": "",
+        "armhole": "",
+        "bicep": "",
+        "wrist": "",
+        "sleeveLength": "",
+        "shirtLength": ""
+      }
+  }
+}

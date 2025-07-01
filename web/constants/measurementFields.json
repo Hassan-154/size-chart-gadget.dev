@@ -1,0 +1,15 @@
+[
+  { "key": "name", "label": "Name", "type": "text", "errorMessage": "Name should not be empty" },
+  { "key": "armLength", "label": "Arm Length", "type": "number", "errorMessage": "Arm Length should not be empty" },
+  { "key": "armhole", "label": "Armhole", "type": "number", "errorMessage": "Armhole should not be empty" },
+  { "key": "bicep", "label": "Bicep", "type": "number", "errorMessage": "Bicep should not be empty" },
+  { "key": "chest", "label": "Chest", "type": "number", "errorMessage": "Chest should not be empty" },
+  { "key": "hips", "label": "Hips", "type": "number", "errorMessage": "Hips should not be empty" },
+  { "key": "neck", "label": "Neck", "type": "number", "errorMessage": "Neck should not be empty" },
+  { "key": "shirtLength", "label": "Shirt Length", "type": "number", "errorMessage": "Shirt Length should not be empty" },
+  { "key": "shoulder", "label": "Shoulder", "type": "number", "errorMessage": "Shoulder should not be empty" },
+  { "key": "sleeveLength", "label": "Sleeve Length", "type": "number", "errorMessage": "Sleeve Length should not be empty" },
+  { "key": "waist", "label": "Waist", "type": "number", "errorMessage": "Waist should not be empty" },
+  { "key": "wrist", "label": "Wrist", "type": "number", "errorMessage": "Wrist should not be empty" },
+  { "key": "measurementType", "label": "Measurement Type", "type": "text", "errorMessage": "Measurement Type should not be empty" }
+] 

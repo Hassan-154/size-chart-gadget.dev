@@ -20,6 +20,9 @@ import { api } from "../api";
 import IndexPage from "../routes/index";
 import OrderLineItems from "../routes/orderLineItems.$id";
 import CustomerOrderDetails from "../routes/customerOrderDetails.$id";
+import MeasurementUI from "../routes/measurementUI";
+import MeasurementProducts from "../routes/measurementProducts.$id";
+import AllSizesProfile from "../routes/allSizesProfile";
 import "./App.css";
 
 function Error404() {
@@ -44,6 +47,9 @@ function App() {
         <Route index element={<IndexPage />} />
         <Route path="orderLineItems/:id" element={<OrderLineItems />} />
         <Route path="customerOrderDetails/:id" element={<CustomerOrderDetails />} />
+        <Route path="measurementUI/:id" element={<MeasurementUI />} />
+        <Route path="measurementProducts/:id" element={<MeasurementProducts />} />
+        <Route path="allSizesProfile" element={<AllSizesProfile />} />
         <Route path="*" element={<Error404 />} />
       </Route>
     )
@@ -97,6 +103,7 @@ function EmbeddedApp() {
         <Link to="/" rel="home">
           Shop Information
         </Link>
+        <Link to="/allSizesProfile">All Sizes Profile</Link>
       </NavMenu>
     </>
   );

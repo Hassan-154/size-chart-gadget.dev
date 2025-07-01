@@ -1,15 +1,15 @@
 import { Modal, TextField, Text, Button, FormLayout } from "@shopify/polaris";
 import { useCallback, useState, useEffect, useMemo } from "react";
-import measurementFields from "../constans/measurementFields.json";
+import measurementFields from "../constants/measurementFields.json";
 
-function MeasurementModal({ open, onClose, lineItem }) {
+function MeasurementModal({ open, onClose, lineItem, onUpdate }) {
   const [fields, setFields] = useState({});
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (open && lineItem) {
       setFields(lineItem);
-      setErrors({});
+      setErrors({});  
     }
   }, [open, lineItem]);
 
@@ -17,7 +17,8 @@ function MeasurementModal({ open, onClose, lineItem }) {
     const fieldDef = measurementFields.find(f => f.key === key);
     let filteredValue = value;
     if (fieldDef?.type === "number") {
-      filteredValue = value.replace(/\D/g, "");
+      filteredValue = value.replace(/[^\d.]/g, "");
+      filteredValue = filteredValue === "" ? undefined : Number(filteredValue);
     }
     setFields((prev) => ({ ...prev, [key]: filteredValue }));
     setErrors((prev) => ({ ...prev, [key]: undefined }));
@@ -26,31 +27,32 @@ function MeasurementModal({ open, onClose, lineItem }) {
   const handleUpdate = () => {
     const newErrors = {};
     measurementFields.forEach((field) => {
-      if (!fields[field.key] || String(fields[field.key]).trim() === "") {
+      if (
+        (field.type === "number" && (fields[field.key] === undefined || fields[field.key] === null || isNaN(fields[field.key]))) ||
+        (field.type !== "number" && (!fields[field.key] || String(fields[field.key]).trim() === ""))
+      ) {
         newErrors[field.key] = field.errorMessage;
       }
     });
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) {
-      alert("Please fill all the fields.");
       return;
     }
-    alert("No empty field. The data can be submitted.");
-    // TODO: handle successful update logic here
+    if (onUpdate) onUpdate(fields);
     onClose();
   };
 
   const groupedFields = useMemo(() => {
-    const pairs = [];
-    for (let i = 0; i < measurementFields.length; i += 2) {
-      pairs.push(measurementFields.slice(i, i + 2));
+    const groups = [];
+    for (let i = 0; i < measurementFields.length; i += 4) {
+      groups.push(measurementFields.slice(i, i + 4));
     }
-    return pairs;
+    return groups;
   }, []);
 
   return (
-    <Modal open={open} onClose={onClose} title={lineItem ? `Size title: ${lineItem.name}` : "Edit Size"}>
-      <Modal.Section>
+    <Modal size="large" open={open} onClose={onClose} title={lineItem ? `Size title: ${lineItem.name}` : "Edit Size"}>
+      <Modal.Section size="large">
         <Text variant="headingMd" as="h2">Measurement Details</Text>
         {lineItem ? (
           <FormLayout>
@@ -79,7 +81,7 @@ function MeasurementModal({ open, onClose, lineItem }) {
         )}
         <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end", gap: 10 }}>
           <Button onClick={onClose}>Close</Button>
-          <Button onClick={handleUpdate}>Update</Button>
+          <Button onClick={handleUpdate} variant="primary">Update</Button>
         </div>
       </Modal.Section>
     </Modal>
