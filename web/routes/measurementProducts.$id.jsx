@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { RadioButton, Page, Box, BlockStack, Card, Text } from '@shopify/polaris';
+import { RadioButton, Page, Box, BlockStack, Card, Text, LegacyCard, LegacyStack, Button, Collapsible, TextContainer, Link } from '@shopify/polaris';
 import measurementData from '../constants/measurementData.json';
 import { useFindFirst } from "@gadgetinc/react";
 import { api } from "../api";
@@ -86,6 +86,11 @@ function measurementProducts() {
   // Add the handleSave function
   const handleSave = useCallback(async (nodeId, selectedValue, formData, sizeMeasurementId) => {
 
+    console.log("formData", formData);
+    console.log("selectedValue", selectedValue);
+    console.log("sizeMeasurementId", sizeMeasurementId);
+    console.log("nodeId", nodeId);
+
     const dataReadyToUpdate = {
       value: selectedValue,
       subOptions: {
@@ -119,28 +124,35 @@ function measurementProducts() {
         shopify.toast.show(message, { isError: true });
         console.log("Failed to submit data:", error);
       }
-      finally{
+      finally {
         setLoading(false);
         refetchOrderDetails()
       }
     }
   }, []);
 
+  const [open, setOpen] = useState({});
+  const handleToggle = useCallback((id) => {
+    setOpen(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  }, []);
+
   return (
     <Page title={`Order ${orderIdParam}`}>
-    {(isOrderFetching || loading) && (
-      <FullPageSpinner />
-    )}
-    
-        <BlockStack gap={600}>
-          {orderDetails?.lineItems?.edges.map(({ node }) => {
-            // Get the initial value from sizeMeasurement if it exists, otherwise use default
-            const initialValue = node.sizeMeasurement?.sizeData?.value || measurementData[0].value;
+      {(isOrderFetching || loading) && (
+        <FullPageSpinner />
+      )}
+      <BlockStack gap={600}>
+        {orderDetails?.lineItems?.edges.map(({ node }) => {
+          const initialValue = node.sizeMeasurement?.sizeData?.value || measurementData[0].value;
 
-            return (
-              <Card key={node.id} borderColor="border">
-                {/* Product Info Section */}
-                <Box style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+          return (
+            <Card key={node.id} borderColor="border">
+              <Box style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
+                <Box style={{ display: 'flex', alignItems: 'center' }}>
+                  <Box></Box>
                   <Box>
                     <Text as="p" variant="bodyMd" fontWeight="semibold">
                       {node.name}
@@ -149,41 +161,39 @@ function measurementProducts() {
                       Price: ${node.price}
                     </Text>
                   </Box>
-                  <Text as="p" variant="bodyMd">
-                    Quantity: {node.quantity}
-                  </Text>
                 </Box>
+                <Text as="p" variant="bodyMd">
+                  Quantity: {node.quantity}
+                </Text>
+              </Box>
 
-                {/* Measurement Type Selection */}
-                <Card>
-                  <BlockStack gap="200">
-                    {measurementData.map((option) => (
-                      <Box key={`${node.id}-${option.value}`}>
-                        <RadioButton
-                          label={option.label}
-                          checked={(selectedItems[node.id] ?? initialValue) === option.value}
-                          id={`${node.id}-${option.value}`}
-                          name={`measurementType-${node.id}`}
-                          value={option.value}
-                          onChange={(checked) => handleChange(checked, option.value, node.id)}
-                        />
-                      </Box>
-                    ))}
-                  </BlockStack>
-                </Card>
-
-                {/* Measurement Type Specific Component */}
+              <Box style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
+                <Button
+                  onClick={() => handleToggle(node.id)}
+                  ariaExpanded={!!open[node.id]}
+                  ariaControls={`collapsible-${node.id}`}
+                >
+                  {open[node.id] ? "Hide Measurement" : "Show Measurement"}
+                </Button>
+              </Box>
+              <Collapsible
+                open={!!open[node.id]}
+                id={`collapsible-${node.id}`}
+                transition={{ duration: '500ms', timingFunction: 'ease-in-out' }}
+                expandOnPrint
+              >
                 <MeasurementTypeSelector
-                  key={selectedItems[node.id]}
                   selected={selectedItems[node.id] ?? initialValue}
                   orderDetails={measurementDataPerItem[node.id] || node.sizeMeasurement}
                   onSave={(selectedValue, formData) => handleSave(node.id, selectedValue, formData, node.sizeMeasurement?.id)}
+                  radioGroupName={`measurementType-${node.id}`}
                 />
-              </Card>
-            );
-          })}
-        </BlockStack>
-   
+              </Collapsible>
+            </Card>
+          );
+        })}
+      </BlockStack>
+
     </Page>
   );
 }

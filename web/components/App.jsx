@@ -23,6 +23,7 @@ import CustomerOrderDetails from "../routes/customerOrderDetails.$id";
 import MeasurementUI from "../routes/measurementUI";
 import MeasurementProducts from "../routes/measurementProducts.$id";
 import AllSizesProfile from "../routes/allSizesProfile";
+import CreateNewProfile from "../routes/createNewProfile";
 import "./App.css";
 
 function Error404() {
@@ -47,9 +48,10 @@ function App() {
         <Route index element={<IndexPage />} />
         <Route path="orderLineItems/:id" element={<OrderLineItems />} />
         <Route path="customerOrderDetails/:id" element={<CustomerOrderDetails />} />
-        <Route path="measurementUI/:id" element={<MeasurementUI />} />
+        <Route path="measurementUI" element={<MeasurementUI />} />
         <Route path="measurementProducts/:id" element={<MeasurementProducts />} />
         <Route path="allSizesProfile" element={<AllSizesProfile />} />
+        <Route path="createNewProfile" element={<CreateNewProfile />} />
         <Route path="*" element={<Error404 />} />
       </Route>
     )
